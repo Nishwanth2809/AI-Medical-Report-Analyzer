@@ -20,4 +20,9 @@ app.get("/", (req, res) => res.send("Medical Report AI Node Backend Running"));
 app.use("/upload", uploadRouter);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on http://127.0.0.1:${PORT}`));
+
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server running on http://127.0.0.1:${PORT}`));
+}
+
+module.exports = app;

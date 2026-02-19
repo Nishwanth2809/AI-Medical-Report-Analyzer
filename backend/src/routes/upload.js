@@ -2,6 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 
 const { getLiveNutritionGuidanceFree } = require("../services/liveNutritionGuidanceFree");
 const { simplifySections } = require("../services/simplifier");
@@ -22,7 +23,7 @@ const { extractSections } = require("../services/sectionExtractor");
 const router = express.Router();
 
 // ✅ Always save uploads to backend/src/uploads (absolute path)
-const UPLOAD_DIR = path.join(__dirname, "..", "uploads");
+const UPLOAD_DIR = path.join(os.tmpdir(), "medical-uploads");
 if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
