@@ -1,0 +1,239 @@
+.rPage {
+  min-height: 100vh;
+  background: #f6f9ff;
+  padding: 28px 18px 42px;
+  color: #0f172a;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
+}
+
+.rTopBar {
+  max-width: 1040px;
+  margin: 0 auto 10px;
+}
+
+.rBackBtn {
+  border: none;
+  background: transparent;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 8px 0;
+}
+
+.rHeader {
+  max-width: 1040px;
+  margin: 0 auto 18px;
+}
+
+.rTitle {
+  font-size: 44px;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rSubtitle {
+  margin: 10px 0 0;
+  font-size: 18px;
+  color: #475569;
+}
+
+.rCard {
+  max-width: 1040px;
+  margin: 18px auto;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 10px 25px rgba(2, 6, 23, 0.08);
+}
+
+.rCardTitle {
+  margin: 0 0 14px;
+  font-size: 28px;
+}
+
+.rBodyText {
+  color: #0f172a;
+  line-height: 1.75;
+  font-size: 18px;
+  white-space: pre-wrap;
+}
+
+.rConditionsScroll {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px;
+  max-height: 360px; /* like screenshot */
+  overflow-y: auto;
+  background: #fbfdff;
+}
+
+.rEmpty {
+  color: #64748b;
+  padding: 8px;
+}
+
+.rConditionCard {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.rConditionCard:last-child {
+  margin-bottom: 0;
+}
+
+.rConditionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rConditionName {
+  font-size: 22px;          /* Bigger */
+  font-weight: 900;         /* Stronger */
+  letter-spacing: -0.01em;  /* Slight tightening */
+  color: #0f172a;           /* Deep navy */
+  text-transform: capitalize; /* Makes "sinusitis" -> "Sinusitis" */
+}
+
+
+.rPills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.rPill {
+  background: #dcfce7; /* light green */
+  color: #14532d;      /* dark green */
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.rConditionText {
+  margin-top: 12px;
+  color: #334155;
+  line-height: 1.7;
+  font-size: 16px;
+}
+
+.rPreviewRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rPreviewBtn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.rPreviewBtn:hover {
+  background: #f8fafc;
+}
+
+.rPreviewBox {
+  margin: 14px 0 0;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 14px;
+
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-size: 14px;
+  color: #0f172a;
+
+  max-height: none;       /* ✅ show everything */
+  overflow: visible;      /* ✅ no hidden text */
+  word-break: break-word; /* ✅ long lines wrap */
+}
+
+
+
+
+.rDisclaimer {
+  max-width: 1040px;
+  margin: 14px auto 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.rReport {
+  display: grid;
+  gap: 16px;
+}
+
+.rReportSection {
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.rReportHeading {
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.rReportText {
+  font-size: 17px;
+  line-height: 1.75;
+  color: #0f172a;
+  white-space: pre-wrap;
+}
+
+.rListOrdered {
+  padding-left: 22px;
+  margin: 0;
+  line-height: 1.7;
+  font-size: 17px;
+}
+
+.rListBullet {
+  padding-left: 22px;
+  margin: 0;
+  line-height: 1.7;
+  font-size: 17px;
+  list-style-type: disc;
+}
+
+.rReportText p {
+  margin: 0;
+  line-height: 1.75;
+  font-size: 17px;
+}
+
+.rRadiologyBox {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  line-height: 1.7;
+}
+
+.rRadiologyItem {
+  margin-bottom: 10px;
+  white-space: pre-wrap;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+.rRadiologyItem:last-child {
+  margin-bottom: 0;
+}

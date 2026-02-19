@@ -1,0 +1,130 @@
+{
+  "anemia": {
+    "overview": "A condition where the body has lower than normal hemoglobin or red blood cells.",
+    "recommended_foods": [
+      "Leafy green vegetables",
+      "Legumes",
+      "Dates and raisins",
+      "Iron-fortified cereals"
+    ],
+    "foods_to_limit": [
+      "Excess tea or coffee with meals",
+      "Highly processed foods"
+    ],
+    "lifestyle": [
+      "Balanced diet",
+      "Adequate rest",
+      "Regular medical checkups"
+    ]
+  },
+  "diabetes": {
+    "overview": "A condition where the body has difficulty regulating blood sugar levels.",
+    "recommended_foods": [
+      "Whole grains",
+      "Vegetables",
+      "Legumes",
+      "Nuts and seeds"
+    ],
+    "foods_to_limit": [
+      "Sugary drinks",
+      "Refined carbohydrates",
+      "Processed snacks"
+    ],
+    "lifestyle": [
+      "Regular physical activity",
+      "Consistent meal timing",
+      "Stress management"
+    ]
+  },
+  "hypertension": {
+    "overview": "A condition where blood pressure levels are persistently high.",
+    "recommended_foods": [
+      "Fruits and vegetables",
+      "Low-sodium foods",
+      "Whole grains"
+    ],
+    "foods_to_limit": [
+      "Excess salt",
+      "Processed foods"
+    ],
+    "lifestyle": [
+      "Regular exercise",
+      "Stress reduction",
+      "Adequate sleep"
+    ]
+  },
+  "gastritis": {
+    "meaning": "Gastritis means the lining of the stomach is irritated or inflamed. This can cause discomfort, burning, nausea, or vomiting.",
+    "why_it_matters": "If the stomach lining is inflamed, eating can feel painful and the body may not tolerate food well for a short time.",
+    "common_symptoms": [
+      "Upper abdominal pain or burning",
+      "Nausea or vomiting",
+      "Bloating",
+      "Loss of appetite"
+    ],
+    "when_to_seek_help": [
+      "Severe or persistent stomach pain",
+      "Vomiting blood or black stools",
+      "Unable to keep fluids down",
+      "Symptoms lasting more than a few days"
+    ],
+    "recommended_foods": [
+      "Soft cooked foods",
+      "Bananas",
+      "Rice",
+      "Oatmeal",
+      "Curd/yogurt (if tolerated)"
+    ],
+    "foods_to_limit": [
+      "Spicy foods",
+      "Oily/fried foods",
+      "Alcohol",
+      "Very acidic foods"
+    ],
+    "lifestyle": [
+      "Small frequent meals",
+      "Stay hydrated",
+      "Avoid skipping meals"
+    ]
+  },
+  "dehydration": {
+    "meaning": "Dehydration means your body does not have enough water and salts to function normally.",
+    "why_it_matters": "Low fluids can cause weakness, dizziness, and can affect blood pressure and kidney function.",
+    "common_symptoms": [
+      "Thirst",
+      "Dry mouth",
+      "Dark yellow urine or less urine",
+      "Dizziness or fatigue"
+    ],
+    "when_to_seek_help": [
+      "Confusion or extreme weakness",
+      "Fainting",
+      "Very little or no urination",
+      "High fever or severe vomiting/diarrhea"
+    ],
+    "recommended_foods": [
+      "Oral rehydration solution",
+      "Coconut water",
+      "Soups",
+      "Water-rich fruits"
+    ],
+    "foods_to_limit": [
+      "Excess caffeine",
+      "Very sugary drinks"
+    ],
+    "lifestyle": [
+      "Drink fluids regularly",
+      "Monitor urine color",
+      "Seek care if severe symptoms occur"
+    ]
+  },
+  "sinusitis": {
+  "meaning": "Sinusitis means the lining of the sinuses (air spaces near the nose) is inflamed. This can cause congestion, facial pressure, and headache.",
+  "why_it_matters": "Inflamed sinuses can cause discomfort and sometimes infection-like symptoms, especially with cold/allergy triggers.",
+  "common_symptoms": ["Blocked nose", "Facial pressure", "Headache", "Thick nasal discharge"],
+  "when_to_seek_help": ["High fever", "Severe facial pain", "Symptoms lasting more than 10 days", "Vision swelling/pain"],
+  "recommended_foods": ["Warm fluids", "Soups", "Fruits", "Hydrating foods"],
+  "foods_to_limit": ["Very cold drinks (if they worsen symptoms)"],
+  "lifestyle": ["Steam inhalation may help comfort", "Stay hydrated", "Rest"]
+  }
+}
