@@ -61,7 +61,11 @@ async function extractText(filePath, ext) {
   ext = (ext || "").toLowerCase();
 
   if (ext === "pdf") return await extractTextFromPdf(filePath);
-  if (["jpg", "jpeg", "png"].includes(ext)) return await ocrImage(filePath);
+  if (["jpg", "jpeg", "png"].includes(ext)) {
+    // OCR on Vercel serverless is often too slow and can time out.
+    if (process.env.VERCEL) return "";
+    return await ocrImage(filePath);
+  }
   if (ext === "txt") return fs.readFileSync(filePath, "utf8");
 
   return "";

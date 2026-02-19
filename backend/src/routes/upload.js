@@ -53,6 +53,20 @@ function normalizeKey(s = "") {
     .replace(/\s+/g, " ");
 }
 
+function truncateText(str, maxLen = 4000) {
+  const value = String(str || "");
+  if (value.length <= maxLen) return value;
+  return `${value.slice(0, maxLen)}\n\n[truncated]`;
+}
+
+function truncateObjectValues(obj = {}, maxLen = 4000) {
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[k] = typeof v === "string" ? truncateText(v, maxLen) : v;
+  }
+  return out;
+}
+
 router.post("/", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
@@ -146,13 +160,16 @@ router.post("/", upload.single("file"), async (req, res) => {
     );
 
     // 9) Return response
+    const sections_compact = truncateObjectValues(sections, 4000);
+    const simplified_sections_compact = truncateObjectValues(simplified_sections, 4000);
+
     return res.json({
       filename: req.file.originalname,
       stored_path: filePath,
       text_length: extractedText.length,
       report_type: reportType,
-      sections,
-      simplified_sections,
+      sections: sections_compact,
+      simplified_sections: simplified_sections_compact,
       umls_mentions,
       detected_conditions,
       radiology_findings,
