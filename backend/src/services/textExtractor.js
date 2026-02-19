@@ -25,6 +25,11 @@ async function extractTextFromPdf(filePath) {
   const text = (parsed.text || "").trim();
   if (text.length > 50) return text;
 
+  // Vercel runs on Linux; pdf-poppler fallback is not reliable there.
+  if (process.env.VERCEL) {
+    return text;
+  }
+
   // 2) OCR fallback (scanned pdf)
   const pdfPoppler = await loadPdfPoppler();
 

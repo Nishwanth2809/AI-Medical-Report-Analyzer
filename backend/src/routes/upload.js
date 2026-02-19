@@ -35,6 +35,16 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+function withTimeout(promise, ms, fallbackValue) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      timer = setTimeout(() => resolve(fallbackValue), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
 function normalizeKey(s = "") {
   return String(s)
     .toLowerCase()
@@ -65,7 +75,11 @@ router.post("/", upload.single("file"), async (req, res) => {
     // 4) UMLS mentions (optional)
     let umls_mentions = [];
     if (process.env.UMLS_API_KEY) {
-      umls_mentions = await tagUmlsConcepts({ extractedText, sections });
+      umls_mentions = await withTimeout(
+        tagUmlsConcepts({ extractedText, sections }),
+        10000,
+        []
+      );
     }
 
     // 5) Radiology findings
@@ -116,10 +130,20 @@ router.post("/", upload.single("file"), async (req, res) => {
     }
 
     // 8) Live Nutrition (UMLS category aware)
-    const live_nutrition = await getLiveNutritionGuidanceFree({
-      detectedConditions: detected_conditions,
-      umlsMentions: umls_mentions,
-    });
+    const live_nutrition = await withTimeout(
+      getLiveNutritionGuidanceFree({
+        detectedConditions: detected_conditions,
+        umlsMentions: umls_mentions,
+      }),
+      12000,
+      {
+        message: "Live nutrition timed out for this request",
+        sources: [],
+        nutrients_found: [],
+        foods_ranked_by_usda: {},
+        nutrients: [],
+      }
+    );
 
     // 9) Return response
     return res.json({
