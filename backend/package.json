@@ -1,0 +1,35 @@
+{
+  "name": "backend-node",
+  "version": "1.0.0",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "axios": "^1.13.5",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.1.0",
+    "multer": "^2.0.2",
+    "node-cache": "^5.1.2",
+    "pdf-parse": "^1.1.1",
+    "pdf-poppler": "^0.2.3",
+    "qs": "^6.14.1",
+    "react-router-dom": "^7.13.0",
+    "tesseract.js": "^7.0.0"
+  },
+  "devDependencies": {
+    "@ljharb/tsconfig": "^0.3.2",
+    "@types/html2canvas": "^0.5.35",
+    "@types/jspdf": "^1.3.3",
+    "nodemon": "^3.1.11"
+  }
+}
