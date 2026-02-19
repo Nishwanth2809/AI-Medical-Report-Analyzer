@@ -4,7 +4,7 @@ import type { ApiResponse } from "../api/types";
 
 type Props = { onDone: (data: ApiResponse) => void };
 
-const MAX_MB = 10;
+const MAX_MB = 4;
 const ACCEPTED_EXT = [".pdf", ".txt", ".png", ".jpg", ".jpeg"];
 
 function bytesToMB(bytes: number) {
@@ -33,7 +33,7 @@ export default function UploadPage({ onDone }: Props) {
 
     if (!isAccepted(f)) {
       setFile(null);
-      setError("Supported formats: PDF, TXT, PNG, JPG, JPEG (max 10MB).");
+      setError(`Supported formats: PDF, TXT, PNG, JPG, JPEG (max ${MAX_MB}MB).`);
       return;
     }
 
@@ -145,7 +145,7 @@ export default function UploadPage({ onDone }: Props) {
             </div>
 
             <p className="dropTitle">Drag and drop your medical report here</p>
-            <p className="dropHint">PDF, TXT, PNG, JPG, JPEG files (max 10MB)</p>
+            <p className="dropHint">{`PDF, TXT, PNG, JPG, JPEG files (max ${MAX_MB}MB)`}</p>
 
             <button
               type="button"
@@ -187,8 +187,9 @@ export default function UploadPage({ onDone }: Props) {
       </div>
 
       <p className="footer">
-        Supported formats: PDF, TXT, PNG, JPG, JPEG • Maximum file size: 10MB
+        Supported formats: PDF, TXT, PNG, JPG, JPEG - Maximum file size: {MAX_MB}MB
       </p>
     </div>
   );
 }
+

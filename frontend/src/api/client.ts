@@ -6,10 +6,18 @@ export async function analyzeReport(file: File): Promise<ApiResponse> {
   const form = new FormData();
   form.append("file", file); // must match multer upload.single("file")
 
-  const res = await fetch(`${BASE}/upload`, {
-    method: "POST",
-    body: form,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}/upload`, {
+      method: "POST",
+      body: form,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Network error";
+    throw new Error(
+      `${msg}. If you are on Vercel, keep file size at or below 4MB and verify API URL.`
+    );
+  }
 
   const contentType = res.headers.get("content-type") || "";
   const isJson = contentType.includes("application/json");
