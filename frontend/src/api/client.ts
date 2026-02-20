@@ -1,7 +1,8 @@
 import type { ApiError, ApiResponse } from "./types";
 
 export async function analyzeReport(file: File): Promise<ApiResponse> {
-  const BASE = import.meta.env.VITE_API_BASE_URL || "";
+  const rawBase = import.meta.env.VITE_API_BASE_URL || "";
+  const BASE = rawBase.replace(/\/+$/, "");
 
   const form = new FormData();
   form.append("file", file); // must match multer upload.single("file")
