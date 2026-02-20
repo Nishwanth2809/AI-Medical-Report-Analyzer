@@ -18,6 +18,16 @@ async function ocrImage(imagePath) {
   return (result.data.text || "").trim();
 }
 
+function withTimeout(promise, ms, fallback = "") {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
 async function extractTextFromPdf(filePath) {
   // 1) normal pdf text
   const buffer = fs.readFileSync(filePath);
@@ -62,9 +72,9 @@ async function extractText(filePath, ext) {
 
   if (ext === "pdf") return await extractTextFromPdf(filePath);
   if (["jpg", "jpeg", "png"].includes(ext)) {
-    // OCR on Vercel serverless is often too slow and can time out.
-    if (process.env.VERCEL) return "";
-    return await ocrImage(filePath);
+    // Keep image OCR enabled on Vercel, but bound runtime to avoid request hangs.
+    const timeoutMs = process.env.VERCEL ? 45000 : 30000;
+    return await withTimeout(ocrImage(filePath), timeoutMs, "");
   }
   if (ext === "txt") return fs.readFileSync(filePath, "utf8");
 

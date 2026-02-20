@@ -91,7 +91,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     if (process.env.UMLS_API_KEY) {
       umls_mentions = await withTimeout(
         tagUmlsConcepts({ extractedText, sections }),
-        10000,
+        15000,
         []
       );
     }
@@ -149,7 +149,7 @@ router.post("/", upload.single("file"), async (req, res) => {
         detectedConditions: detected_conditions,
         umlsMentions: umls_mentions,
       }),
-      12000,
+      30000,
       {
         message: "Live nutrition timed out for this request",
         sources: [],

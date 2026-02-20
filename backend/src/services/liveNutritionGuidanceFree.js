@@ -22,30 +22,14 @@ const GENERIC_FOODS = [
   "guava", "pumpkin seeds", "almonds", "chickpeas", "chicken", "beans",
 ];
 
-function extractNhsLinksFromSearchHtml(html) {
-  const links = new Set();
-  const re = /href\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi;
-
-  let m;
-  while ((m = re.exec(html)) !== null) {
-    const raw = (m[1] || m[2] || m[3] || "").trim();
-    if (!raw.startsWith("/")) continue;
-
-    const path = raw.split("#")[0].split("?")[0];
-    const segments = path.split("/").filter(Boolean);
-    if (segments.length < 2) continue;
-
-    const section = segments[0];
-    if (!["conditions", "live-well", "common-health-questions", "medicines"].includes(section)) continue;
-
-    const last = segments[segments.length - 1];
-    const blockedSlugs = new Set(["live-well", "mental-health", "conditions", "services", "covid-19"]);
-    if (blockedSlugs.has(last)) continue;
-
-    links.add("https://www.nhs.uk/" + segments.join("/"));
-  }
-
-  return Array.from(links).slice(0, 20);
+function withTimeout(promise, ms, fallback = null) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((resolve) => {
+      timer = setTimeout(() => resolve(fallback), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
 }
 
 function extractNutrients(text) {
@@ -56,54 +40,31 @@ function extractNutrients(text) {
   return [...map.values()];
 }
 
-async function rankFoodsByNutrient(foodNames, usdaNutrientName) {
-  const results = [];
-  const limited = Array.isArray(foodNames) ? foodNames.slice(0, 12) : [];
+async function rankFoodsByNutrient(foodNames, usdaNutrientName, maxFoods = 12) {
+  const limited = Array.isArray(foodNames) ? foodNames.slice(0, maxFoods) : [];
 
-  for (const food of limited) {
-    try {
-      const fdcId = await usda.getBestMatchFdcId(food);
-      if (!fdcId) continue;
+  const rows = await Promise.all(
+    limited.map(async (food) => {
+      try {
+        const fdcId = await withTimeout(usda.getBestMatchFdcId(food), 2500, null);
+        if (!fdcId) return null;
 
-      const details = await usda.getFoodDetails(fdcId);
-      const amt = usda.getNutrientAmount(details, usdaNutrientName);
-      if (!amt) continue;
+        const details = await withTimeout(usda.getFoodDetails(fdcId), 3000, null);
+        if (!details) return null;
 
-      results.push({ food, fdcId, amount: amt.value, unit: amt.unit });
-    } catch {
-      // ignore per-food failures
-    }
-  }
+        const amt = usda.getNutrientAmount(details, usdaNutrientName);
+        if (!amt) return null;
 
+        return { food, fdcId, amount: amt.value, unit: amt.unit };
+      } catch {
+        return null;
+      }
+    })
+  );
+
+  const results = rows.filter(Boolean);
   results.sort((a, b) => (b.amount ?? 0) - (a.amount ?? 0));
   return results.slice(0, 5);
-}
-
-function mergeUnique(a = [], b = []) {
-  return Array.from(new Set([...(a || []), ...(b || [])]));
-}
-
-function scoreLink(url, baseWord) {
-  const u = url.toLowerCase();
-  let score = 0;
-  if (u.includes("strong-bones")) score += 6;
-  if (u.includes(baseWord.toLowerCase())) score += 3;
-  if (u.includes("bone")) score += 2;
-  if (u.includes("fracture")) score += 2;
-  if (u.includes("diet") || u.includes("food") || u.includes("nutrition")) score += 2;
-  return score;
-}
-
-// quick HTML stripper for fetched pages
-function stripQuick(html) {
-  return html
-    .replace(/<script[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style[\s\S]*?<\/style>/gi, " ")
-    .replace(/<\/(p|li|h1|h2|h3|br|div)>/gi, "\n")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .replace(/\n\s+/g, "\n")
-    .trim();
 }
 
 async function getLiveNutritionGuidanceFree({ detectedConditions = [], umlsMentions = [] } = {}) {
@@ -117,35 +78,46 @@ async function getLiveNutritionGuidanceFree({ detectedConditions = [], umlsMenti
 
   const category = pickCategory(detectedConditions, umlsMentions);
   const query = buildNutritionQueryFromCategory(category, baseTerms);
+  const isVercel = Boolean(process.env.VERCEL);
+  const nutrientLimit = isVercel ? 2 : 4;
+  const foodLimit = isVercel ? 6 : 12;
 
-  // ✅ Use category-aware query
   const sources = [];
-  const mp = await tryMedlinePlus(query);
+  const [mp, nhsPrimary, nhsRetry] = await Promise.all([
+    withTimeout(tryMedlinePlus(query), 5000, null),
+    withTimeout(tryNhsSearch(query), 5000, null),
+    withTimeout(tryNhsSearch(`${baseTerms[0]} diet nutrition NHS`), 5000, null),
+  ]);
+
   if (mp) sources.push({ title: mp.title, url: mp.url, snippet: mp.snippet });
 
-  const nhsPrimary = await tryNhsSearch(query);
-  const nhsRetry = await tryNhsSearch(`${baseTerms[0]} diet nutrition NHS`);
   const nhs = nhsPrimary || nhsRetry;
   if (nhs) sources.push({ title: nhs.title, url: nhs.url, snippet: nhs.snippet });
 
-  // Combine texts for nutrient detection
-  let combinedText = [mp?.text, nhs?.text].filter(Boolean).join("\n");
+  const combinedText = [mp?.text, nhs?.text].filter(Boolean).join("\n");
+  const nutrientsFound = extractNutrients(combinedText).slice(0, nutrientLimit);
 
-  // ... keep your NHS deep-link fetch logic here (links extraction, fetch pages, strip HTML)
-  // Make sure you append to combinedText as you already do.
-
-  const nutrientsFound = extractNutrients(combinedText);
-
-  const odsSources = [];
-  for (const n of nutrientsFound.slice(0, 4)) {
-    const ods = await fetchOdsFactSheet(n.label.replace(/\s+/g, ""));
-    if (ods) odsSources.push({ title: ods.title, url: ods.url, snippet: ods.snippet });
-  }
+  const odsRows = await Promise.all(
+    nutrientsFound.map((n) =>
+      withTimeout(fetchOdsFactSheet(n.label.replace(/\s+/g, "")), 3500, null)
+    )
+  );
+  const odsSources = odsRows
+    .filter(Boolean)
+    .map((ods) => ({ title: ods.title, url: ods.url, snippet: ods.snippet }));
 
   const foods_ranked_by_usda = {};
-  for (const n of nutrientsFound) {
-    foods_ranked_by_usda[n.key] = await rankFoodsByNutrient(GENERIC_FOODS, n.usdaName);
-  }
+  const rankedRows = await Promise.all(
+    nutrientsFound.map(async (n) => {
+      const foods = await withTimeout(
+        rankFoodsByNutrient(GENERIC_FOODS, n.usdaName, foodLimit),
+        isVercel ? 6000 : 12000,
+        []
+      );
+      return [n.key, foods];
+    })
+  );
+  for (const [key, foods] of rankedRows) foods_ranked_by_usda[key] = foods;
 
   const nutrient_packets = nutrientsFound.map((n) => ({
     key: n.key,
@@ -155,7 +127,7 @@ async function getLiveNutritionGuidanceFree({ detectedConditions = [], umlsMenti
   }));
 
   return {
-    message: "Live nutrition (UMLS category) ✅",
+    message: "Live nutrition (UMLS category)",
     category,
     query,
     sources: [...sources, ...odsSources].slice(0, 10),
@@ -164,6 +136,5 @@ async function getLiveNutritionGuidanceFree({ detectedConditions = [], umlsMenti
     nutrients: nutrient_packets,
   };
 }
-
 
 module.exports = { getLiveNutritionGuidanceFree };
