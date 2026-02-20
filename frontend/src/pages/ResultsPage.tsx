@@ -7,6 +7,32 @@ type Props = {
   onBack: () => void;
 };
 
+type NutritionFood = {
+  fdcId: number | string;
+  food: string;
+  amount: number;
+  unit: string;
+};
+
+type NutritionPacket = {
+  key: string;
+  label?: string;
+  unit_hint?: string;
+  top_foods?: NutritionFood[];
+  foods?: string[];
+};
+
+const FALLBACK_FOODS_BY_NUTRIENT: Record<string, string[]> = {
+  calcium: ["Milk", "Yogurt", "Sesame seeds"],
+  vitamin_d: ["Salmon", "Egg yolk", "Fortified milk"],
+  protein: ["Lentils", "Egg", "Chicken"],
+  vitamin_c: ["Orange", "Guava", "Broccoli"],
+  zinc: ["Pumpkin seeds", "Chickpeas", "Almonds"],
+  iron: ["Spinach", "Lentils", "Sesame seeds"],
+  folate: ["Lentils", "Broccoli", "Orange"],
+  vitamin_b12: ["Egg", "Milk", "Cheese"],
+};
+
 // Simple heuristic tags just for UI pills (since backend doesn’t provide severity)
 function getPillsForCondition(): string[] {
   return ["Mild", "Normal"];
@@ -156,8 +182,10 @@ export default function ResultsPage({ data, onBack }: Props) {
         ? data.guidance.nutrients
         : [];
 
-    const nutrientPackets: any[] =
-      ln && Array.isArray(ln.nutrients) && ln.nutrients.length > 0 ? ln.nutrients : guidanceNutrients;
+    const nutrientPackets: NutritionPacket[] =
+      ln && Array.isArray(ln.nutrients) && ln.nutrients.length > 0
+        ? (ln.nutrients as NutritionPacket[])
+        : (guidanceNutrients as NutritionPacket[]);
     const sources = ln && Array.isArray(ln.sources) ? ln.sources : [];
     const nutritionMessage =
       (ln as { message?: string } | undefined)?.message ||
@@ -171,7 +199,7 @@ export default function ResultsPage({ data, onBack }: Props) {
 
         <div className="rConditionsScroll">
           {nutrientPackets.length > 0 ? (
-            nutrientPackets.map((n: any) => (
+            nutrientPackets.map((n) => (
               <div key={n.key} className="rConditionCard">
                 <div className="rConditionHeader">
                   <div className="rConditionName">{"label" in n && n.label ? n.label : n.key}</div>
@@ -186,10 +214,30 @@ export default function ResultsPage({ data, onBack }: Props) {
                   <div style={{ marginTop: 8 }}>
                     <strong>Top foods (USDA):</strong>
                     <ul className="rListBullet" style={{ marginTop: 6 }}>
-                      {n.top_foods.map((f: { fdcId: number | string; food: string; amount: number; unit: string }) => (
+                      {n.top_foods
+                        .slice(0, 3)
+                        .map((f: { fdcId: number | string; food: string; amount: number; unit: string }) => (
                         <li key={`${n.key}-${f.fdcId}`}>
                           {f.food} - {f.amount} {f.unit} (per 100g)
                         </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : Array.isArray(n.foods) && n.foods.length > 0 ? (
+                  <div style={{ marginTop: 8 }}>
+                    <strong>Recommended foods:</strong>
+                    <ul className="rListBullet" style={{ marginTop: 6 }}>
+                      {n.foods.slice(0, 3).map((food) => (
+                        <li key={`${n.key}-${food}`}>{food}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : Array.isArray(FALLBACK_FOODS_BY_NUTRIENT[n.key]) ? (
+                  <div style={{ marginTop: 8 }}>
+                    <strong>Suggested foods:</strong>
+                    <ul className="rListBullet" style={{ marginTop: 6 }}>
+                      {FALLBACK_FOODS_BY_NUTRIENT[n.key].slice(0, 3).map((food) => (
+                        <li key={`${n.key}-fallback-${food}`}>{food}</li>
                       ))}
                     </ul>
                   </div>
@@ -350,3 +398,4 @@ export default function ResultsPage({ data, onBack }: Props) {
     </div>
   );
 }
+
