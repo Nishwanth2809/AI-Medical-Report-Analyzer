@@ -38,116 +38,10 @@ function getPillsForCondition(): string[] {
   return ["Mild", "Normal"];
 }
 
-function renderSmartText(text: string) {
-  const trimmed = text.trim();
-
-  // Detect numbered list (1. 2. 3.)
-  const numberedMatch = trimmed.match(/\d+\.\s/g);
-  if (numberedMatch && numberedMatch.length >= 1) {
-    const items = trimmed
-      .split(/\d+\.\s/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    return (
-      <ol className="rListOrdered">
-        {items.map((item, i) => (
-          <li key={i}>{item}</li>
-        ))}
-      </ol>
-    );
-  }
-
-  // Detect bullet list (•)
-  if (trimmed.includes("•")) {
-    const items = trimmed
-      .split("•")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    return (
-      <ul className="rListBullet">
-        {items.map((item, i) => (
-          <li key={i}>{item}</li>
-        ))}
-      </ul>
-    );
-  }
-
-  // Default → paragraph (supports line breaks)
-  return <p style={{ whiteSpace: "pre-wrap", margin: 0 }}>{trimmed}</p>;
-}
 
 export default function ResultsPage({ data, onBack }: Props) {
   const [showPreview, setShowPreview] = useState(false);
 
-  // ---- Description blocks in radiology-style headings ----
-  const descriptionBlocks = useMemo(() => {
-    const simplified = data.simplified_sections ?? {};
-    const sectionKeys = Object.keys(data.sections ?? {});
-
-    const clean = (s: string) =>
-      s
-        .replace(/\s*•\s*/g, "\n• ")
-        .replace(/\n{3,}/g, "\n\n")
-        .replace(/[ \t]+\n/g, "\n")
-        .trim();
-
-    const normalize = (k: string) => k.toLowerCase();
-
-    const buckets: Array<{ label: string; keys: string[] }> = [
-      {
-        label: "Clinical History",
-        keys: ["history", "clinical", "complaint", "indication", "present"],
-      },
-      { label: "Technique", keys: ["technique", "method", "procedure", "protocol", "contrast"] },
-      { label: "Findings", keys: ["finding", "observation", "result", "brain", "sinus", "scan"] },
-      {
-        label: "Impression",
-        keys: ["impression", "conclusion", "summary", "opinion", "recommendation"],
-      },
-    ];
-
-    const orderedKeys = sectionKeys.length ? sectionKeys : Object.keys(simplified);
-
-    const used = new Set<string>();
-    const blocks: Array<{ heading: string; text: string }> = [];
-
-    for (const b of buckets) {
-      const matched = orderedKeys.filter((k) => {
-        const nk = normalize(k);
-        return b.keys.some((w) => nk.includes(w)) && typeof simplified[k] === "string";
-      });
-
-      const texts = matched
-        .map((k) => {
-          used.add(k);
-          return simplified[k];
-        })
-        .filter((t): t is string => typeof t === "string" && t.trim().length > 0)
-        .map(clean);
-
-      if (texts.length) blocks.push({ heading: b.label, text: texts.join("\n\n") });
-    }
-
-    const remainingTexts = orderedKeys
-      .filter((k) => !used.has(k))
-      .map((k) => simplified[k])
-      .filter((t): t is string => typeof t === "string" && t.trim().length > 0)
-      .map(clean);
-
-    if (remainingTexts.length) blocks.push({ heading: "Other Notes", text: remainingTexts.join("\n\n") });
-
-    if (blocks.length === 0) {
-      const combined = Object.values(simplified)
-        .filter((t): t is string => typeof t === "string" && t.trim().length > 0)
-        .map(clean)
-        .join("\n\n");
-      return combined ? [{ heading: "Report", text: combined }] : [];
-    }
-
-    return blocks;
-  }, [data.sections, data.simplified_sections]);
 
   // ---- Symptoms & Cures from disease_explanations ----
   const symptomsAndCuresText = useMemo(() => {
@@ -301,23 +195,6 @@ export default function ResultsPage({ data, onBack }: Props) {
         )}
       </section>
 
-      {/* Description (Simplified) */}
-      <section className="rCard">
-        <h2 className="rCardTitle">Description (Simplified)</h2>
-
-        <div className="rReport">
-          {descriptionBlocks.length === 0 ? (
-            <div className="rEmpty">No simplified description available.</div>
-          ) : (
-            descriptionBlocks.map((b) => (
-              <div key={b.heading} className="rReportSection">
-                <div className="rReportHeading">{b.heading}</div>
-                <div className="rReportText">{renderSmartText(b.text)}</div>
-              </div>
-            ))
-          )}
-        </div>
-      </section>
 
       {/* Detected Conditions */}
       <section className="rCard">
@@ -398,4 +275,5 @@ export default function ResultsPage({ data, onBack }: Props) {
     </div>
   );
 }
+
 
