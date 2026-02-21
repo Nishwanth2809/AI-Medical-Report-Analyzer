@@ -38,6 +38,14 @@ function getPillsForCondition(): string[] {
   return ["Mild", "Normal"];
 }
 
+function toTitleCase(value: string): string {
+  return value
+    .toLowerCase()
+    .split(" ")
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+    .join(" ");
+}
+
 
 
 export default function ResultsPage({ data, onBack }: Props) {
@@ -161,7 +169,7 @@ export default function ResultsPage({ data, onBack }: Props) {
           <div className="rRadiologyBox">
             {data.radiology_findings.map((item, index) => (
               <div key={index} className="rRadiologyItem">
-                {typeof item === "string" ? item : JSON.stringify(item)}
+                {typeof item === "string" ? toTitleCase(item) : JSON.stringify(item)}
               </div>
             ))}
           </div>
