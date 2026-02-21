@@ -33,15 +33,17 @@ const FALLBACK_FOODS_BY_NUTRIENT: Record<string, string[]> = {
   vitamin_b12: ["Egg", "Milk", "Cheese"],
 };
 
-// Simple heuristic tags just for UI pills (since backend doesn’t provide severity)
+// Simple heuristic tags just for UI pills (since backend doesn't provide severity)
+function getPillsForCondition(): string[] {
+  return ["Mild", "Normal"];
+}
+
 
 
 export default function ResultsPage({ data, onBack }: Props) {
 
 
-  // ---- Symptoms & Cures from disease_explanations ----
-
-  // ---- Live Nutrition block (to show INSIDE Symptoms & Cures) ----
+  // ---- Live Nutrition block ----
   const liveNutritionInline = useMemo(() => {
     const ln = data.live_nutrition;
     const guidanceNutrients =
@@ -136,6 +138,7 @@ export default function ResultsPage({ data, onBack }: Props) {
     );
   }, [data.guidance, data.live_nutrition]);
 
+  const conditions = useMemo(() => data.detected_conditions ?? [], [data.detected_conditions]);
 
   return (
     <div className="rPage">
@@ -167,6 +170,50 @@ export default function ResultsPage({ data, onBack }: Props) {
         )}
       </section>
 
+      {/* Detected Conditions */}
+      <section className="rCard">
+        <h2 className="rCardTitle">Detected Conditions</h2>
+
+        <div className="rConditionsScroll">
+          {conditions.length === 0 ? (
+            <div className="rEmpty">No conditions detected.</div>
+          ) : (
+            conditions.map((c) => {
+              const pills = getPillsForCondition();
+              const exp = data.disease_explanations?.[c.toLowerCase().trim()];
+
+              const body =
+                exp?.meaning ||
+                exp?.why_it_matters ||
+                "Condition detected in the report. Consult your doctor for clinical interpretation.";
+
+              return (
+                <div key={c} className="rConditionCard">
+                  <div className="rConditionHeader">
+                    <div className="rConditionName">
+                      {c
+                        .toLowerCase()
+                        .split(" ")
+                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                        .join(" ")}
+                    </div>
+
+                    <div className="rPills">
+                      {pills.map((p) => (
+                        <span key={p} className="rPill">
+                          {p}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rConditionText">{body}</div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </section>
 
       <section className="rCard">
         <h2 className="rCardTitle">Nutrition for Recovery</h2>
