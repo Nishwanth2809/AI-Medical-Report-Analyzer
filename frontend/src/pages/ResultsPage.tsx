@@ -46,6 +46,30 @@ function toTitleCase(value: string): string {
     .join(" ");
 }
 
+function splitToItems(text: string): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+
+  if (/\d+\.\s/.test(trimmed)) {
+    return trimmed
+      .split(/\d+\.\s/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  if (/[\u2022?]/.test(trimmed)) {
+    return trimmed
+      .split(/[\u2022?]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  return trimmed
+    .split(/\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
 
 
 export default function ResultsPage({ data, onBack }: Props) {
@@ -148,16 +172,22 @@ export default function ResultsPage({ data, onBack }: Props) {
 
   const conditions = useMemo(() => data.detected_conditions ?? [], [data.detected_conditions]);
 
-  const symptomsByCondition = useMemo(() => {
-    const explanations = data.disease_explanations ?? {};
-    const out: Record<string, string[]> = {};
-    for (const c of conditions) {
-      const key = c.toLowerCase().trim();
-      const symptoms = explanations[key]?.common_symptoms ?? [];
-      out[c] = Array.isArray(symptoms) ? symptoms.filter(Boolean) : [];
-    }
-    return out;
-  }, [conditions, data.disease_explanations]);
+  const impressionItems = useMemo(() => {
+    const simplified = data.simplified_sections ?? {};
+    const sections = data.sections ?? {};
+
+    const fromSimplified = Object.entries(simplified)
+      .filter(([k, v]) => typeof v === "string" && k.toLowerCase().includes("impression"))
+      .map(([, v]) => v);
+
+    const fromSections = Object.entries(sections)
+      .filter(([k, v]) => typeof v === "string" && k.toLowerCase().includes("impression"))
+      .map(([, v]) => v);
+
+    const source = (fromSimplified.length ? fromSimplified : fromSections).join("
+");
+    return splitToItems(source).slice(0, 8);
+  }, [data.sections, data.simplified_sections]);
 
   return (
     <div className="rPage">
@@ -233,28 +263,21 @@ export default function ResultsPage({ data, onBack }: Props) {
           )}
         </div>
       </section>
-      {/* Symptoms */}
+      {/* Impression (Conditions) */}
       <section className="rCard">
-        <h2 className="rCardTitle">Symptoms</h2>
+        <h2 className="rCardTitle">Impression (Conditions)</h2>
 
         <div className="rConditionsScroll">
-          {conditions.length === 0 ? (
-            <div className="rEmpty">No symptoms available.</div>
+          {impressionItems.length === 0 ? (
+            <div className="rEmpty">No impression items found.</div>
           ) : (
-            conditions.map((c) => {
+            impressionItems.map((item, idx) => {
               const pills = getPillsForCondition();
-              const symptoms = symptomsByCondition[c] || [];
 
               return (
-                <div key={`symptoms-${c}`} className="rConditionCard">
+                <div key={`impression-${idx}`} className="rConditionCard">
                   <div className="rConditionHeader">
-                    <div className="rConditionName">
-                      {c
-                        .toLowerCase()
-                        .split(" ")
-                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                        .join(" ")}
-                    </div>
+                    <div className="rConditionName">{item}</div>
 
                     <div className="rPills">
                       {pills.map((p) => (
@@ -265,15 +288,7 @@ export default function ResultsPage({ data, onBack }: Props) {
                     </div>
                   </div>
 
-                  {symptoms.length > 0 ? (
-                    <ul className="rListBullet" style={{ marginTop: 10 }}>
-                      {symptoms.slice(0, 6).map((s: string, i: number) => (
-                        <li key={`${c}-symptom-${i}`}>{s}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="rEmpty">No symptoms listed.</div>
-                  )}
+                  <div className="rConditionText">{item}</div>
                 </div>
               );
             })
