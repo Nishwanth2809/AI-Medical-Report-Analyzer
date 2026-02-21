@@ -150,7 +150,7 @@ export default function ResultsPage({ data, onBack }: Props) {
 
   const symptomsByCondition = useMemo(() => {
     const explanations = data.disease_explanations ?? {};
-    const out = {};
+    const out: Record<string, string[]> = {};
     for (const c of conditions) {
       const key = c.toLowerCase().trim();
       const symptoms = explanations[key]?.common_symptoms ?? [];
@@ -267,7 +267,7 @@ export default function ResultsPage({ data, onBack }: Props) {
 
                   {symptoms.length > 0 ? (
                     <ul className="rListBullet" style={{ marginTop: 10 }}>
-                      {symptoms.slice(0, 6).map((s, i) => (
+                      {symptoms.slice(0, 6).map((s: string, i: number) => (
                         <li key={`${c}-symptom-${i}`}>{s}</li>
                       ))}
                     </ul>
