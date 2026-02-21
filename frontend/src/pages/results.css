@@ -123,42 +123,6 @@
   font-size: 16px;
 }
 
-.rPreviewRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.rPreviewBtn {
-  border: 1px solid #cbd5e1;
-  background: #ffffff;
-  border-radius: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.rPreviewBtn:hover {
-  background: #f8fafc;
-}
-
-.rPreviewBox {
-  margin: 14px 0 0;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 14px;
-
-  white-space: pre-wrap;
-  line-height: 1.6;
-  font-size: 14px;
-  color: #0f172a;
-
-  max-height: none;       /* ✅ show everything */
-  overflow: visible;      /* ✅ no hidden text */
-  word-break: break-word; /* ✅ long lines wrap */
-}
 
 
 
@@ -237,3 +201,4 @@
 .rRadiologyItem:last-child {
   margin-bottom: 0;
 }
+

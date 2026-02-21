@@ -34,39 +34,12 @@ const FALLBACK_FOODS_BY_NUTRIENT: Record<string, string[]> = {
 };
 
 // Simple heuristic tags just for UI pills (since backend doesn’t provide severity)
-function getPillsForCondition(): string[] {
-  return ["Mild", "Normal"];
-}
 
 
 export default function ResultsPage({ data, onBack }: Props) {
-  const [showPreview, setShowPreview] = useState(false);
 
 
   // ---- Symptoms & Cures from disease_explanations ----
-  const symptomsAndCuresText = useMemo(() => {
-    const explanations = data.disease_explanations ?? {};
-    const keys = Object.keys(explanations);
-    if (keys.length === 0) return "";
-
-    return keys
-      .map((cond) => {
-        const e = explanations[cond];
-        const symptoms = (e?.common_symptoms ?? []).filter(Boolean);
-        const seekHelp = (e?.when_to_seek_help ?? []).filter(Boolean);
-
-        return [
-          `Condition: ${cond}`,
-          e?.meaning ? `Meaning: ${e.meaning}` : "",
-          e?.why_it_matters ? `Why it matters: ${e.why_it_matters}` : "",
-          symptoms.length ? `Common symptoms: ${symptoms.join(", ")}` : "",
-          seekHelp.length ? `When to seek help: ${seekHelp.join(", ")}` : "",
-        ]
-          .filter(Boolean)
-          .join("\n");
-      })
-      .join("\n\n");
-  }, [data.disease_explanations]);
 
   // ---- Live Nutrition block (to show INSIDE Symptoms & Cures) ----
   const liveNutritionInline = useMemo(() => {
@@ -163,7 +136,6 @@ export default function ResultsPage({ data, onBack }: Props) {
     );
   }, [data.guidance, data.live_nutrition]);
 
-  const conditions = useMemo(() => data.detected_conditions ?? [], [data.detected_conditions]);
 
   return (
     <div className="rPage">
@@ -196,80 +168,11 @@ export default function ResultsPage({ data, onBack }: Props) {
       </section>
 
 
-      {/* Detected Conditions */}
       <section className="rCard">
-        <h2 className="rCardTitle">Detected Conditions</h2>
-
-        <div className="rConditionsScroll">
-          {conditions.length === 0 ? (
-            <div className="rEmpty">No conditions detected.</div>
-          ) : (
-            conditions.map((c) => {
-              const pills = getPillsForCondition();
-              const exp = data.disease_explanations?.[c.toLowerCase().trim()];
-
-              const body =
-                exp?.meaning ||
-                exp?.why_it_matters ||
-                "Condition detected in the report. Consult your doctor for clinical interpretation.";
-
-              return (
-                <div key={c} className="rConditionCard">
-                  <div className="rConditionHeader">
-                    <div className="rConditionName">
-                      {c
-                        .toLowerCase()
-                        .split(" ")
-                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-                        .join(" ")}
-                    </div>
-
-                    <div className="rPills">
-                      {pills.map((p) => (
-                        <span key={p} className="rPill">
-                          {p}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="rConditionText">{body}</div>
-                </div>
-              );
-            })
-          )}
-        </div>
+        <h2 className="rCardTitle">Nutrition for Recovery</h2>
+        {liveNutritionInline}
       </section>
 
-      {/* Symptoms and Cures Preview */}
-      <section className="rCard">
-        <div className="rPreviewRow">
-          <h2 className="rCardTitle" style={{ margin: 0 }}>
-            Symptoms and Cures
-          </h2>
-
-          <button
-            type="button"
-            className="rPreviewBtn"
-            onClick={() => setShowPreview((v) => !v)}
-          >
-            {showPreview ? "Hide Preview" : "Preview"}
-          </button>
-        </div>
-
-        {showPreview && (
-          <div className="rPreviewBox">
-            <div style={{ whiteSpace: "pre-wrap", marginBottom: 16 }}>
-              {symptomsAndCuresText.trim() ||
-                (data.extracted_text_preview?.trim() ?? "") ||
-                "No details available."}
-            </div>
-
-            {/* ✅ LIVE Nutrition goes here */}
-            {liveNutritionInline}
-          </div>
-        )}
-      </section>
 
       <p className="rDisclaimer">{data.disclaimer}</p>
     </div>
