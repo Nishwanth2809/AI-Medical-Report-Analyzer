@@ -184,8 +184,7 @@ export default function ResultsPage({ data, onBack }: Props) {
       .filter(([k, v]) => typeof v === "string" && k.toLowerCase().includes("impression"))
       .map(([, v]) => v);
 
-    const source = (fromSimplified.length ? fromSimplified : fromSections).join("
-");
+    const source = (fromSimplified.length ? fromSimplified : fromSections).join("\n");
     return splitToItems(source).slice(0, 8);
   }, [data.sections, data.simplified_sections]);
 
