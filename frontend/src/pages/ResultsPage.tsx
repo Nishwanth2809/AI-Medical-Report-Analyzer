@@ -148,6 +148,17 @@ export default function ResultsPage({ data, onBack }: Props) {
 
   const conditions = useMemo(() => data.detected_conditions ?? [], [data.detected_conditions]);
 
+  const symptomsByCondition = useMemo(() => {
+    const explanations = data.disease_explanations ?? {};
+    const out = {};
+    for (const c of conditions) {
+      const key = c.toLowerCase().trim();
+      const symptoms = explanations[key]?.common_symptoms ?? [];
+      out[c] = Array.isArray(symptoms) ? symptoms.filter(Boolean) : [];
+    }
+    return out;
+  }, [conditions, data.disease_explanations]);
+
   return (
     <div className="rPage">
       <div className="rTopBar">
@@ -216,6 +227,53 @@ export default function ResultsPage({ data, onBack }: Props) {
                   </div>
 
                   <div className="rConditionText">{body}</div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </section>
+      {/* Symptoms */}
+      <section className="rCard">
+        <h2 className="rCardTitle">Symptoms</h2>
+
+        <div className="rConditionsScroll">
+          {conditions.length === 0 ? (
+            <div className="rEmpty">No symptoms available.</div>
+          ) : (
+            conditions.map((c) => {
+              const pills = getPillsForCondition();
+              const symptoms = symptomsByCondition[c] || [];
+
+              return (
+                <div key={`symptoms-${c}`} className="rConditionCard">
+                  <div className="rConditionHeader">
+                    <div className="rConditionName">
+                      {c
+                        .toLowerCase()
+                        .split(" ")
+                        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+                        .join(" ")}
+                    </div>
+
+                    <div className="rPills">
+                      {pills.map((p) => (
+                        <span key={p} className="rPill">
+                          {p}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {symptoms.length > 0 ? (
+                    <ul className="rListBullet" style={{ marginTop: 10 }}>
+                      {symptoms.slice(0, 6).map((s, i) => (
+                        <li key={`${c}-symptom-${i}`}>{s}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="rEmpty">No symptoms listed.</div>
+                  )}
                 </div>
               );
             })
